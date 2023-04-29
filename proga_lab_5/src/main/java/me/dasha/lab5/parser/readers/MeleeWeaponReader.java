@@ -26,7 +26,7 @@ public class MeleeWeaponReader {
         Scanner scanner = new Scanner(System.in);
         String str = scanner.nextLine().trim();
 
-        while (!checkExist(str) && !canBeNull && !str.equals("")) {
+        while (!checkExist(str) || !canBeNull || !str.equals("")) {
             if (canBeNull && str.equals("") || checkExist(str)) {
                 break;
             }
