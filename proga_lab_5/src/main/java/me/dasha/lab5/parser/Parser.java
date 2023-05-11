@@ -12,6 +12,7 @@ import me.dasha.lab5.collectionClasses.SpaceMarine;
 
 import java.io.*;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 
 public class Parser {
@@ -71,6 +72,9 @@ public class Parser {
             } catch (JsonSyntaxException | IllegalStateException e) {
                 System.out.println("Ошибка в содержании файла " + e.getMessage() + "\nПриложение не может запуститься");
                 System.exit(0);
+            } catch(DateTimeParseException e){
+            System.out.println("Неверный формат даты");
+            System.exit(0);
             }
         } else {
             System.out.println("Имя файла не задано");
