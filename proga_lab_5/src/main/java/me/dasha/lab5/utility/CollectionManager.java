@@ -2,6 +2,8 @@ package me.dasha.lab5.utility;
 
 import me.dasha.lab5.collectionClasses.Coordinates;
 import me.dasha.lab5.collectionClasses.SpaceMarine;
+import me.dasha.lab5.parser.readers.*;
+
 import java.time.LocalDateTime;
 import java.util.*;
 /**
@@ -19,6 +21,24 @@ public class CollectionManager {
             stack = new Stack<>();
             creationDate = LocalDateTime.now();
         }
+    }
+    public static boolean checkValidation(SpaceMarine spaceMarine) {
+        if (spaceMarine.getId() != null
+                && StringReader.readFromJson(spaceMarine.getName(), false)
+                && IntReader.readFromJson(spaceMarine.getCoordinates().getX(), false, -623)
+                && DoubleReader.readFromJson(spaceMarine.getCoordinates().getY(), false, -347)
+                && spaceMarine.getCoordinates().getY() == 0 && spaceMarine.getCoordinates().getX() == 0
+                && spaceMarine.getCreationDate() != null
+                && DoubleReader.readFromJson(spaceMarine.getHealth(), false, 0)
+                && StringReader.readFromJson(spaceMarine.getAchievements(), true)
+                && WeaponReader.readFromJson(spaceMarine.getWeaponType(), true)
+                && MeleeWeaponReader.readFromJson(spaceMarine.getMeleeWeapon(), true)
+                && StringReader.readFromJson(spaceMarine.getChapter().getName(), false)
+                && StringReader.readFromJson(spaceMarine.getChapter().getParentLegion(), true)
+                && StringReader.readFromJson(spaceMarine.getChapter().getWorld(), true)) {
+            return true;
+        }
+        else {return false;}
     }
     /**
      * get items stack
@@ -41,8 +61,15 @@ public class CollectionManager {
      * @param spaceMarine
      */
     public static void addJSONObject(SpaceMarine spaceMarine) {
-        spaceMarine.setId(GeneratorID.saveId(spaceMarine.getId()));//возможно заменить просто на getId
-        stack.add(spaceMarine);
+        if (checkValidation(spaceMarine)) {
+            spaceMarine.setId(GeneratorID.saveId(spaceMarine.getId()));
+            stack.add(spaceMarine);
+        }
+        else {
+            System.out.println("Какой-то из параметров не подходит/отсутствует\nДля запуска приложения исправьте файл JSON");
+            System.exit(0);
+        }
+
     }
     /**
      * get information stack collection
@@ -86,16 +113,22 @@ public class CollectionManager {
      * @param id
      */
     public static void removeById(Integer id) {
+        boolean isRemoved = false;
         Iterator<SpaceMarine> i = stack.iterator();
         while (i.hasNext()) {
             SpaceMarine spaceMarine = i.next();
             {
                 if (spaceMarine.getId().equals(id)) {
                     i.remove();
-                    System.out.println("Элемент удален из коллекции");
+                    isRemoved = true;
                 }
-                System.out.println("Элемента с таким ID нет в коллекции");
             }
+        }
+        if (isRemoved){
+            System.out.println("Элемента удален");
+        }
+        else {
+            System.out.println("Элемента с таким ID нет в коллекции");
         }
     }
     /**
@@ -106,7 +139,7 @@ public class CollectionManager {
         GeneratorID.clearSet();
     }
     /**
-     * add a new element to a given position
+     * add b new element to b given position
      * @param index
      * @param element
      */
@@ -123,13 +156,14 @@ public class CollectionManager {
         }
     }
     /**
-     * add a new element if its value is less than the smallest element of this collection
+     * add b new element if its value is less than the smallest element of this collection
      * @param spaceMarine
      */
     public static void addIfMin(SpaceMarine spaceMarine) {
+        SpaceMarineComparator comparator = new SpaceMarineComparator();
         for (SpaceMarine spaceMarine1 : stack) {
-            if (spaceMarine1.compareTo(spaceMarine) > 0) {
-                stack.add(spaceMarine);
+            if (comparator.compare(spaceMarine1, spaceMarine) == 1) {
+                stack.add(spaceMarine1);
             } else {
                 System.out.println("Невозможно добавить элемент");
                 break;
@@ -142,19 +176,22 @@ public class CollectionManager {
      */
     public static void removeAnyByAchievements(String achievements) {
 
-        Iterator<SpaceMarine> iterator = stack.iterator();
-        boolean found = false;
-        while (iterator.hasNext()) {
-            SpaceMarine spaceMarine = iterator.next();
-            if (spaceMarine.getAchievements().equals(achievements)) {
-                iterator.remove();
-                found = true;
-                System.out.println("Элемент удален из коллекции.");
-                break;
+        boolean isRemoved = false;
+        Iterator<SpaceMarine> i = stack.iterator();
+        while (i.hasNext()) {
+            SpaceMarine spaceMarine = i.next();
+            {
+                if (spaceMarine.getAchievements().equals(achievements)) {
+                    i.remove();
+                    isRemoved = true;
+                }
             }
         }
-        if (!found) {
-            System.out.println("Элемента с такими достижениями нет в коллекции.");
+        if (isRemoved){
+            System.out.println("Элемент удален из коллекции");
+        }
+        else {
+            System.out.println("Элемента с таким achievement нет в коллекции");
         }
     }
     /**
